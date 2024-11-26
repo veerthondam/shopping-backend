@@ -59,11 +59,30 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    res.status(200).json({ token, message: "Login successful" });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "Lax",
+      maxAge: 3600000,
+      secure: true,
+    });
+
+    res.status(200).json({ message: "Login successful" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+//Logout
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "Lax",
+    maxAge: 3600000,
+    secure: true, //process.env.NODE_ENV === "production",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 });
 
 // Protect route to fetch all users
